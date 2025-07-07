@@ -1,0 +1,22 @@
+name: Product DB
+services:
+  product_db:
+    image: mysql:8.0
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:z
+      - product_db_vol:/var/lib/mysql
+    ports:
+      - 3306:3306
+    networks:
+      - product_db
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: product_db
+      MYSQL_USER: product_user
+      MYSQL_PASSWORD: product_pass
+
+volumes:
+  product_db_vol:
+
+networks:
+  product_db:
