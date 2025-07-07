@@ -3,25 +3,20 @@ package service
 import (
 	"context"
 
-	"github.com/commerce-app-demo/product-service/internal/config"
 	"github.com/commerce-app-demo/product-service/internal/models/products"
 	"github.com/commerce-app-demo/product-service/internal/repository/mysql"
 )
 
 type ProductService struct {
-	repo *mysql.ProductRepository
+	Repo *mysql.ProductRepository
 }
 
 func (s *ProductService) GetProductById(ctx context.Context, id string) (*products.ProductEntity, error) {
-	cfg := config.LoadDBConfig()
+	// through golang magic, calling a function when repo is nil is totally okay
+	// but if i were to do something like the commented code below, it errors because i try to dereference a nil object...
+	// log.Printf("Number, totally unrelated: %d\n", s.repo.Number)
 
-	repo, err := mysql.NewProductRepository(ctx, cfg)
-
-	if err != nil {
-		return nil, err
-	}
-
-	product, err := repo.ProductById(id)
+	product, err := s.Repo.ProductById(id)
 
 	if err != nil {
 		return nil, err

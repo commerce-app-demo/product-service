@@ -1,37 +1,17 @@
 package mysql
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 
-	"github.com/commerce-app-demo/product-service/internal/config"
 	"github.com/commerce-app-demo/product-service/internal/models/products"
 )
 
 type ProductRepository struct {
-	db *sql.DB
-}
-
-func NewProductRepository(ctx context.Context, cfg *config.DatabaseConfig) (*ProductRepository, error) {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.DBName)
-	db, err := sql.Open(cfg.Driver, dsn)
-
-	if err != nil {
-		log.Fatalf("Error when opening database: %s", err)
-	}
-
-	err = db.Ping()
-	if err != nil {
-		return nil, err
-	}
-
-	return &ProductRepository{
-		db: db,
-	}, nil
+	DB *sql.DB
 }
 
 func (r *ProductRepository) Products() ([]products.ProductEntity, error) {
@@ -45,10 +25,24 @@ func (r *ProductRepository) Products() ([]products.ProductEntity, error) {
 }
 
 func (r *ProductRepository) ProductById(id string) (*products.ProductEntity, error) {
-	product := products.ProductEntity{
-		Id:    id,
-		Name:  "Bottle",
-		Price: 3000,
+	table := "products"
+
+	query := fmt.Sprintf("SELECT * FROM %s WHERE id = ?", table)
+	stmt, err := r.DB.Prepare(query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := stmt.Query(id)
+	var product products.ProductEntity
+
+	for rows.Next() {
+		err = rows.Scan(&product.Id, &product.Name, &product.Price)
+		if err != nil {
+			log.Printf("Error when scanning: %s", err)
+			return nil, err
+		}
 	}
 
 	return &product, nil

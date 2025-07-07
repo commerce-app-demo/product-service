@@ -9,12 +9,11 @@ import (
 
 type ProductServiceServer struct {
 	productspb.UnimplementedProductServiceServer
-	productService *service.ProductService
+	ProductService *service.ProductService
 }
 
 func (s *ProductServiceServer) GetProduct(ctx context.Context, req *productspb.GetProductRequest) (*productspb.Product, error) {
-
-	product, err := s.productService.GetProductById(ctx, req.Id)
+	product, err := s.ProductService.GetProductById(ctx, req.Id)
 
 	if err != nil {
 		return nil, err
