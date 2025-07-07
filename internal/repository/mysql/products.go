@@ -3,7 +3,6 @@ package mysql
 import (
 	"database/sql"
 	"fmt"
-	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 
@@ -27,7 +26,7 @@ func (r *ProductRepository) Products() ([]products.ProductEntity, error) {
 func (r *ProductRepository) ProductById(id string) (*products.ProductEntity, error) {
 	table := "products"
 
-	query := fmt.Sprintf("SELECT * FROM %s WHERE id = ?", table)
+	query := fmt.Sprintf("SELECT id, name, price FROM %s WHERE id = ?", table)
 	stmt, err := r.DB.Prepare(query)
 
 	if err != nil {
@@ -37,12 +36,11 @@ func (r *ProductRepository) ProductById(id string) (*products.ProductEntity, err
 	rows, err := stmt.Query(id)
 	var product products.ProductEntity
 
-	for rows.Next() {
+	// Guaranteed 1 result anyway
+	if rows.Next() == false {
+		return nil, fmt.Errorf("%s", "Item not found")
+	} else {
 		err = rows.Scan(&product.Id, &product.Name, &product.Price)
-		if err != nil {
-			log.Printf("Error when scanning: %s", err)
-			return nil, err
-		}
 	}
 
 	return &product, nil
