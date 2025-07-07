@@ -14,13 +14,30 @@ type ProductRepository struct {
 }
 
 func (r *ProductRepository) Products() ([]products.ProductEntity, error) {
-	productList := []products.ProductEntity{{
-		Id:    "0",
-		Name:  "Bottle",
-		Price: 3000,
-	}}
+	table := "products"
 
-	return productList, nil
+	query := fmt.Sprintf("SELECT id, name, price FROM %s LIMIT 50", table)
+	stmt, err := r.DB.Prepare(query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := stmt.Query()
+
+	var productArray []products.ProductEntity
+	var product products.ProductEntity
+
+	for rows.Next() {
+		rows.Scan(&product.Id, &product.Name, &product.Price)
+		productArray = append(productArray, product)
+	}
+
+	if len(productArray) < 1 {
+		return nil, fmt.Errorf("%s", "Product is empty")
+	}
+
+	return productArray, nil
 }
 
 func (r *ProductRepository) ProductById(id string) (*products.ProductEntity, error) {
