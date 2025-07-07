@@ -12,17 +12,23 @@ type ProductServiceServer struct {
 	ProductService *service.ProductService
 }
 
-func (s *ProductServiceServer) GetProduct(ctx context.Context, req *productspb.GetProductRequest) (*productspb.Product, error) {
-	product, err := s.ProductService.GetProductById(ctx, req.Id)
+func (s *ProductServiceServer) GetProducts(ctx context.Context, req *productspb.Empty) (*productspb.ProductArray, error) {
+	products, err := s.ProductService.GetProducts()
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &productspb.Product{
-		Id:    product.Id,
-		Name:  product.Name,
-		Price: product.Price,
-	}, nil
+	return products, err
+}
+
+func (s *ProductServiceServer) GetProduct(ctx context.Context, req *productspb.GetProductRequest) (*productspb.Product, error) {
+	product, err := s.ProductService.GetProductById(req.Id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return product, err
 
 }
