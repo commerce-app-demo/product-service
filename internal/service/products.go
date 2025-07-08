@@ -49,3 +49,17 @@ func (s *ProductService) GetProductById(id string) (*productspb.Product, error) 
 		Price: product.Price,
 	}, nil
 }
+
+func (s *ProductService) CreateProduct(req *productspb.CreateProductRequest) (*productspb.Product, error) {
+	product, err := s.Repo.CreateProduct(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &productspb.Product{
+		Id:    product.Id,
+		Name:  product.Name,
+		Price: product.Price,
+	}, nil
+}

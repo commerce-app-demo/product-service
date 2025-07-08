@@ -7,6 +7,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/commerce-app-demo/product-service/internal/models/products"
+	productspb "github.com/commerce-app-demo/product-service/proto"
 )
 
 type ProductRepository struct {
@@ -22,6 +23,7 @@ func (r *ProductRepository) Products() ([]products.ProductEntity, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer stmt.Close()
 
 	rows, err := stmt.Query()
 
@@ -49,6 +51,7 @@ func (r *ProductRepository) ProductById(id string) (*products.ProductEntity, err
 	if err != nil {
 		return nil, err
 	}
+	defer stmt.Close()
 
 	rows, err := stmt.Query(id)
 	var product products.ProductEntity
@@ -61,4 +64,35 @@ func (r *ProductRepository) ProductById(id string) (*products.ProductEntity, err
 	}
 
 	return &product, nil
+}
+
+func (r *ProductRepository) CreateProduct(req *productspb.CreateProductRequest) (*products.ProductEntity, error) {
+	table := "products"
+
+	execute := fmt.Sprintf("INSERT INTO %s (name,price) VALUES (?, ?)", table)
+	stmt, err := r.DB.Prepare(execute)
+
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	res, err := stmt.Exec(req.Name, req.Price)
+
+	if err != nil {
+		return nil, err
+	}
+
+	id, err := res.LastInsertId()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &products.ProductEntity{
+		Id:    fmt.Sprint(id),
+		Name:  req.Name,
+		Price: req.Price,
+	}, nil
+
 }
