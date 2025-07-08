@@ -8,6 +8,8 @@ service ProductService {
     rpc GetProducts(Empty) returns (ProductArray);
     rpc GetProduct(GetProductRequest) returns (Product);
     rpc CreateProduct(CreateProductRequest) returns (Product);
+    rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse);
+    rpc UpdateProduct(UpdateProductRequest) returns (UpdateProductResponse);
 }
 
 message Empty {}
@@ -21,6 +23,16 @@ message CreateProductRequest {
     double price = 2;
 }
 
+message DeleteProductRequest {
+    string id = 1;
+    optional string reason = 2;
+}
+
+message UpdateProductRequest {
+    string id = 1;
+    optional Product product = 2;
+}
+
 message Product {
     string id = 1;
     string name = 2;
@@ -29,4 +41,14 @@ message Product {
 
 message ProductArray {
     repeated Product products = 1;
+}
+
+message DeleteProductResponse {
+    bool success = 1;
+    optional Product deleted_product = 2;
+}
+
+message UpdateProductResponse {
+    bool success = 1;
+    optional Product updated_product = 2;
 }

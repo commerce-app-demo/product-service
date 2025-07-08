@@ -49,3 +49,54 @@ func (s *ProductService) GetProductById(id string) (*productspb.Product, error) 
 		Price: product.Price,
 	}, nil
 }
+
+func (s *ProductService) CreateProduct(req *productspb.CreateProductRequest) (*productspb.Product, error) {
+	product, err := s.Repo.CreateProduct(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &productspb.Product{
+		Id:    product.Id,
+		Name:  product.Name,
+		Price: product.Price,
+	}, nil
+}
+
+func (s *ProductService) DeleteProduct(id string) (*productspb.Product, error) {
+	deletedProduct, err := s.Repo.DeleteProduct(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &productspb.Product{
+		Id:    deletedProduct.Id,
+		Name:  deletedProduct.Name,
+		Price: deletedProduct.Price,
+	}, nil
+}
+
+func (s *ProductService) UpdateProduct(id string, req *productspb.Product) (*productspb.Product, error) {
+	updatedFields := make(map[string]any)
+
+	if req.Name != "" {
+		updatedFields["name"] = req.Name
+	}
+
+	if req.Price != 0 {
+		updatedFields["price"] = req.Price
+	}
+
+	updatedProduct, err := s.Repo.UpdateProduct(id, updatedFields)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &productspb.Product{
+		Id:    updatedProduct.Id,
+		Name:  updatedProduct.Name,
+		Price: updatedProduct.Price,
+	}, nil
+}

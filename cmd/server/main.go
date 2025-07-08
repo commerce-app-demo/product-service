@@ -38,7 +38,7 @@ func main() {
 	err = db.Ping()
 
 	if err != nil {
-		log.Fatalf("ping returned error: %s", err)
+		log.Fatalf("ping returned error: %s\nPlease check whether database is not running", err)
 	}
 
 	productspb.RegisterProductServiceServer(grpcServer, &server.ProductServiceServer{
